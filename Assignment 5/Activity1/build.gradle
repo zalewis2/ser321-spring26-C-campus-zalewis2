@@ -1,0 +1,58 @@
+// set as java application
+apply plugin: 'application'
+
+// define main class
+
+application {
+    mainClass = 'Leader'
+}
+
+// JSON message protocol
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.json:json:20171018'
+
+}
+
+// task to run the Leader node
+// Example: gradle runLeader --args "9000"
+// Example: gradle runLeader -Pport=9000
+task runLeader(type: JavaExec) {
+    group 'Consensus Tasks'
+    description 'Starts leader node and accepts connections from workers'
+
+    classpath = sourceSets.main.runtimeClasspath
+
+    mainClass = 'Leader'
+
+    // default port if none given
+    def p = project.hasProperty('port') ? project.getProperty('port') : '9000'
+
+    args p
+
+    standardInput = System.in
+}
+
+// task to run a Worker node
+// Example: gradle runWorker --args "Worker0 localhost 9000"
+// Example: gradle runWorker -PworkerName=Worker0 -Phost=localhost -Pport=9000
+task runWorker(type: JavaExec) {
+    group 'Consensus Tasks'
+    description 'Starts a worker node that connects to the leader'
+
+    classpath = sourceSets.main.runtimeClasspath
+
+    mainClass = 'Worker'
+
+    // default values if none were given
+    def wName = project.hasProperty('workerName') ? project.getProperty('workerName') : 'Worker0'
+    def h     = project.hasProperty('host')       ? project.getProperty('host')       : 'localhost'
+    def p     = project.hasProperty('port')       ? project.getProperty('port')       : '9000'
+
+    args wName, h, p
+
+    standardInput = System.in
+}
